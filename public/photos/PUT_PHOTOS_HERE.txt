@@ -1,0 +1,3 @@
+Drop .jpg / .jpeg / .png / .webp / .gif files in this folder.
+They float around the background of the page automatically. No code changes needed.
+Tip: shrink them to ~800px wide first so the page loads fast.

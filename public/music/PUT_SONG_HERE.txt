@@ -1,0 +1,2 @@
+Put the song in this folder and name it exactly:  shots.mp3
+It plays on loop after the visitor's first tap or click. A button in the corner pauses it.

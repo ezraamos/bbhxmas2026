@@ -1,0 +1,646 @@
+:root {
+  --bg: #0f1a14;
+  --card: #16241c;
+  --border: #25392d;
+  --text: #f1f5f2;
+  --muted: #9bb0a3;
+  --red: #d64545;
+  --green: #3aa76d;
+  --gold: #e8c26a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(circle at top, #1c3326 0%, var(--bg) 60%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+/* Photo carousels */
+.polaroid {
+  background: #fff;
+  padding: 6px 6px 22px; /* polaroid look */
+  border-radius: 4px;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+  flex-shrink: 0;
+}
+.polaroid img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.track {
+  display: flex;
+  will-change: transform;
+  animation: var(--anim) var(--dur) linear infinite;
+}
+
+/* Desktop: vertical columns in the side gutters */
+.photo-cols {
+  --gutter: calc((100vw - 720px) / 2);
+  --w: clamp(150px, calc(var(--gutter) - 72px), 280px);
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.col {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--w);
+  overflow: hidden;
+  /* soft fade at top and bottom edges */
+  mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(transparent, #000 12%, #000 88%, transparent);
+}
+.col-left {
+  left: calc(var(--gutter) / 2 - var(--w) / 2);
+}
+.col-right {
+  right: calc(var(--gutter) / 2 - var(--w) / 2);
+}
+.col .track {
+  flex-direction: column;
+}
+/* margin, not gap, so the doubled list loops seamlessly at exactly -50% */
+.col .polaroid {
+  margin-bottom: 24px;
+}
+.track.up {
+  --anim: scroll-up;
+}
+.track.down {
+  --anim: scroll-down;
+}
+@keyframes scroll-up {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+@keyframes scroll-down {
+  from {
+    transform: translateY(-50%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+/* Mobile / narrow: horizontal strip under the title */
+.photo-strip {
+  display: none;
+  overflow: hidden;
+  margin: 0 -16px 20px;
+  padding: 8px 0 12px;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.photo-strip .track {
+  width: max-content;
+  --anim: scroll-left;
+}
+.photo-strip .polaroid {
+  width: 150px;
+  margin-right: 14px;
+  padding: 5px 5px 16px;
+}
+@keyframes scroll-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 1099px) {
+  .photo-cols {
+    display: none;
+  }
+  .photo-strip {
+    display: block;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation-duration: calc(var(--dur) * 3);
+  }
+}
+
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(8, 14, 10, 0.88);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-align: center;
+}
+.splash-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Disco lights over the whole page while music plays */
+.disco {
+  position: fixed;
+  inset: 0;
+  z-index: 5; /* above the page, below the music button */
+  overflow: hidden;
+  pointer-events: none; /* clicks go straight through to the page */
+  mix-blend-mode: screen; /* lights brighten the page instead of covering it */
+  animation: disco-in 1.2s ease-out;
+}
+@keyframes disco-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Stage spotlights: soft cones that sweep back and forth */
+.spotlight {
+  position: absolute;
+  width: 38vmax;
+  height: 130vh;
+  margin-left: -19vmax;
+  transform-origin: 50% 100%;
+  filter: blur(22px); /* on the parent so the cone's edges get softened too */
+  opacity: 0.65;
+  animation: sweep var(--t) ease-in-out infinite alternate;
+}
+.spotlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, var(--c) 0%, color-mix(in srgb, var(--c) 40%, transparent) 50%, transparent 100%);
+  clip-path: polygon(46% 100%, 54% 100%, 100% 0, 0 0);
+}
+/* bright hotspot where the light comes from */
+.spotlight::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -40px;
+  width: 120px;
+  height: 120px;
+  margin-left: -60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, var(--c) 35%, transparent 70%);
+}
+@keyframes sweep {
+  from {
+    transform: rotate(var(--from));
+  }
+  to {
+    transform: rotate(var(--to));
+  }
+}
+/* from the floor */
+.sl-1 {
+  --c: #ff3fa4;
+  --from: 8deg;
+  --to: 55deg;
+  --t: 4.5s;
+  left: 4%;
+  bottom: 0;
+}
+.sl-2 {
+  --c: #3fd8ff;
+  --from: -55deg;
+  --to: -8deg;
+  --t: 5.5s;
+  left: 96%;
+  bottom: 0;
+  animation-delay: -2s;
+}
+/* from the ceiling (flipped upside down) */
+.sl-3 {
+  --c: #b06bff;
+  --from: 150deg;
+  --to: 205deg;
+  --t: 6s;
+  left: 18%;
+  bottom: 100%;
+  animation-delay: -1s;
+}
+.sl-4 {
+  --c: #ffd23f;
+  --from: 155deg;
+  --to: 210deg;
+  --t: 5s;
+  left: 82%;
+  bottom: 100%;
+  animation-delay: -3s;
+  animation-direction: alternate-reverse;
+}
+
+/* Mirror-ball reflections: a big disc of sparkles slowly turning around the ball */
+.sparkle-field {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 170vmax;
+  height: 170vmax;
+  translate: -50% -50%;
+  animation: turn 40s linear infinite;
+}
+@keyframes turn {
+  to {
+    rotate: 360deg;
+  }
+}
+.sparkle {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px 2px var(--c), 0 0 14px 4px color-mix(in srgb, var(--c) 50%, transparent);
+  animation: twinkle var(--tw) ease-in-out var(--d) infinite;
+}
+/* 4-point star glint */
+.sparkle.star {
+  border-radius: 0;
+  box-shadow: none;
+  background:
+    radial-gradient(circle, #fff 0 10%, transparent 32%),
+    linear-gradient(var(--c), var(--c)) center / 2px 100% no-repeat,
+    linear-gradient(var(--c), var(--c)) center / 100% 2px no-repeat;
+  filter: drop-shadow(0 0 4px var(--c));
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+    transform: scale(0.4) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15) rotate(45deg);
+  }
+}
+
+/* The disco ball hanging from the ceiling */
+.ball {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  translate: -50% 0;
+  font-size: 2.2rem;
+  line-height: 1;
+  padding-top: 14px;
+  filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.8));
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: 50% 0;
+}
+.ball::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 2px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.5);
+}
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight,
+  .sparkle-field,
+  .ball {
+    animation-duration: 30s;
+  }
+}
+
+.splash-inner h2 {
+  font-size: clamp(1.8rem, 6vw, 2.6rem);
+  margin: 8px 0 4px;
+}
+.splash-icon {
+  font-size: 4rem;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+.btn.splash-btn {
+  margin-top: 24px;
+  font-size: 1.3rem;
+  padding: 16px 44px;
+}
+
+.music-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 10;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--gold);
+  color: #1a1a1a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+.music-btn.on {
+  background: var(--red);
+  color: #fff;
+  animation: pulse 0.9s ease-in-out infinite;
+}
+@keyframes pulse {
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+.hero {
+  text-align: center;
+  padding: 24px 0 32px;
+}
+.hero h1 {
+  font-size: clamp(2rem, 7vw, 3rem);
+  margin: 4px 0;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  font-size: 0.8rem;
+  margin: 0;
+}
+.dates {
+  color: var(--muted);
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.card {
+  background: rgba(22, 36, 28, 0.82); /* lets photos peek through */
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  margin-top: 0;
+}
+.card h3 {
+  margin: 24px 0 12px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.btn {
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--red);
+  color: white;
+}
+.btn-primary:hover {
+  filter: brightness(1.1);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover {
+  background: #1d3025;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--gold);
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+.rsvp-form {
+  display: grid;
+  gap: 14px;
+}
+.rsvp-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+.rsvp-form em {
+  font-weight: 400;
+  font-style: normal;
+}
+.rsvp-form input,
+.rsvp-form textarea {
+  width: 100%;
+  font: inherit;
+  font-weight: 400;
+  color: var(--text);
+  background: #0f1a14;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  resize: vertical;
+}
+.rsvp-form input:focus,
+.rsvp-form textarea:focus {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
+}
+.rsvp-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.form-msg {
+  margin: 0;
+  font-weight: 600;
+}
+.form-msg.ok {
+  color: var(--green);
+}
+.form-msg.err {
+  color: #ff8a8a;
+}
+.small {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.count {
+  background: var(--green);
+  color: white;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 0.85rem;
+  vertical-align: middle;
+}
+
+.people {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+.people li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #1d3025;
+  border-radius: 14px;
+  padding: 8px 14px 8px 8px;
+}
+.person-name {
+  font-weight: 600;
+  line-height: 32px;
+}
+.person-note {
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.35;
+  margin-top: -4px;
+  overflow-wrap: anywhere;
+}
+.people-out li {
+  opacity: 0.6;
+}
+.people-out .avatar {
+  background: #3a4a40;
+}
+.count-muted {
+  background: #3a4a40;
+}
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.avatar {
+  display: grid;
+  place-items: center;
+  background: var(--red);
+  font-weight: 700;
+}
+
+.hotel {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 8px 16px;
+  margin: 0;
+}
+.hotel dt {
+  color: var(--muted);
+}
+.hotel dd {
+  margin: 0;
+}
+.hotel a {
+  color: var(--gold);
+}
+
+.day:first-of-type h3 {
+  margin-top: 8px;
+}
+.timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-left: 2px solid var(--border);
+}
+.timeline > li {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 12px;
+  padding: 10px 0 10px 16px;
+  position: relative;
+}
+.timeline > li::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: 16px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--green);
+}
+.timeline > li.hl::before {
+  background: var(--gold);
+}
+.timeline > li.hl .title {
+  color: var(--gold);
+}
+.time {
+  color: var(--muted);
+  font-size: 0.9rem;
+  padding-top: 2px;
+}
+.title {
+  font-weight: 600;
+}
+.timeline ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  color: #cfdcd4;
+  font-size: 0.95rem;
+}
+
+footer {
+  text-align: center;
+  margin-top: 32px;
+}
+
+@media (max-width: 520px) {
+  .timeline > li {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .card {
+    padding: 18px;
+  }
+}
