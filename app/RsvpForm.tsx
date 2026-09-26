@@ -6,10 +6,13 @@ import { submitRsvp, type RsvpState } from "./actions";
 const NAME_KEY = "bbh-xmas:name";
 
 export default function RsvpForm() {
-  const [state, action, pending] = useActionState<RsvpState, FormData>(submitRsvp, {
-    ok: false,
-    message: "",
-  });
+  const [state, action, pending] = useActionState<RsvpState, FormData>(
+    submitRsvp,
+    {
+      ok: false,
+      message: "",
+    },
+  );
   const [name, setName] = useState("");
 
   // Remember the visitor's name on this device so updating their answer is easy.
@@ -45,19 +48,24 @@ export default function RsvpForm() {
         <span>
           Note <em className="muted">(optional)</em>
         </span>
-        <textarea
-          name="note"
-          placeholder="e.g. arriving Saturday, bringing speakers, plus one…"
-          maxLength={200}
-          rows={2}
-        />
+        <textarea name="note" placeholder="" maxLength={200} rows={2} />
       </label>
 
       <div className="rsvp-buttons">
-        <button className="btn btn-primary" name="going" value="yes" disabled={pending}>
+        <button
+          className="btn btn-primary"
+          name="going"
+          value="yes"
+          disabled={pending}
+        >
           🎄 Yes, I&apos;m going!
         </button>
-        <button className="btn btn-ghost" name="going" value="no" disabled={pending}>
+        <button
+          className="btn btn-ghost"
+          name="going"
+          value="no"
+          disabled={pending}
+        >
           Can&apos;t make it
         </button>
       </div>
@@ -67,7 +75,9 @@ export default function RsvpForm() {
           {state.message}
         </p>
       )}
-      <p className="muted small">Already answered? Submit again with the same name to change it.</p>
+      <p className="muted small">
+        Already answered? Submit again with the same name to change it.
+      </p>
     </form>
   );
 }
